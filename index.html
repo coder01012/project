@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>تحديد الموقع</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 30px;
+      background-color: #f0f0f0;
+    }
+    #location {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #333;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      display: inline-block;
+      max-width: 90%;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>تحديد موقعك بدقة</h1>
+  <button onclick="getLocation()">حدد موقعي</button>
+  <div id="location">اضغط على الزر لتحديد موقعك</div>
+
+  <script>
+    function getLocation() {
+      const locationDiv = document.getElementById("location");
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async position => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+
+          // استخدام Nominatim API للحصول على العنوان
+          try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=ar`);
+            const data = await response.json();
+            const address = data.address;
+
+            let result = "📍 أنت في:\n";
+            if (address.road) result += `الشارع: ${address.road}\n`;
+            if (address.suburb) result += `الحي: ${address.suburb}\n`;
+            if (address.city || address.town || address.village)
+              result += `المدينة: ${address.city || address.town || address.village}\n`;
+            if (address.state) result += `المحافظة/الولاية: ${address.state}\n`;
+            if (address.country) result += `الدولة: ${address.country}\n`;
+
+            locationDiv.textContent = result;
+          } catch (error) {
+            locationDiv.textContent = "حدث خطأ أثناء جلب الموقع.";
+          }
+
+        }, error => {
+          locationDiv.textContent = "يرجى السماح بالوصول إلى الموقع.";
+        }, { enableHighAccuracy: true });
+      } else {
+        locationDiv.textContent = "المتصفح لا يدعم تحديد الموقع.";
+      }
+    }
+  </script>
+
+</body>
+</html>
