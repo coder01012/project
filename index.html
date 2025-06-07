@@ -1,115 +1,135 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <title>معلومات عن المستخدم</title>
+  <meta charset="UTF-8">
+  <title>معلومات الزائر</title>
   <style>
     body {
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background: #f7f9fc;
-      color: #333;
+      background: #f2f7ff;
+      color: #222;
       margin: 0;
       padding: 20px;
-      min-height: 100vh;
     }
     h1 {
-      color: #007bff;
       text-align: center;
+      color: #0056b3;
       margin-bottom: 30px;
     }
     .info-box {
-      background: white;
+      background-color: white;
+      border-radius: 20px;
       padding: 20px;
-      margin-bottom: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-      line-height: 1.6;
-      font-size: 1.1em;
+      margin: 15px auto;
+      max-width: 700px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transition: 0.3s ease-in-out;
     }
-    .info-title {
-      font-weight: 700;
-      color: #0056b3;
-      margin-bottom: 12px;
-      border-bottom: 2px solid #007bff;
-      padding-bottom: 5px;
+    .info-box:hover {
+      transform: scale(1.02);
     }
-    .info-content {
+    .title {
+      font-weight: bold;
+      color: #0077cc;
+      margin-bottom: 10px;
+      border-bottom: 2px solid #0077cc;
+      padding-bottom: 4px;
+    }
+    .content {
       white-space: pre-wrap;
+      font-size: 1.05em;
+      line-height: 1.7;
     }
   </style>
 </head>
 <body>
-  <h1>معلومات عن جهازك وزيارتك للموقع</h1>
+  <h1>معلومات عن جهازك وزيارتك</h1>
 
   <div class="info-box">
-    <div class="info-title">نوع الجهاز ونظام التشغيل:</div>
-    <div class="info-content" id="device"></div>
+    <div class="title">نوع الجهاز ونظام التشغيل</div>
+    <div class="content" id="deviceInfo"></div>
   </div>
 
   <div class="info-box">
-    <div class="info-title">المتصفح واللغة:</div>
-    <div class="info-content" id="browser"></div>
+    <div class="title">المتصفح واللغة</div>
+    <div class="content" id="browserInfo"></div>
   </div>
 
   <div class="info-box">
-    <div class="info-title">دقة الشاشة:</div>
-    <div class="info-content" id="screen"></div>
+    <div class="title">دقة الشاشة</div>
+    <div class="content" id="screenInfo"></div>
   </div>
 
   <div class="info-box">
-    <div class="info-title">مصدر الدخول (referrer):</div>
-    <div class="info-content" id="referrer"></div>
+    <div class="title">مواصفات الجهاز</div>
+    <div class="content" id="hardwareInfo"></div>
+  </div>
+
+  <div class="info-box">
+    <div class="title">الاتصال بالإنترنت</div>
+    <div class="content" id="connectionInfo"></div>
+  </div>
+
+  <div class="info-box">
+    <div class="title">إعدادات الخصوصية</div>
+    <div class="content" id="privacyInfo"></div>
+  </div>
+
+  <div class="info-box">
+    <div class="title">مصدر الدخول</div>
+    <div class="content" id="referrerInfo"></div>
   </div>
 
   <script>
-    // 1. نوع الجهاز ونظام التشغيل
     const ua = navigator.userAgent;
-    let deviceInfo = "غير معروف";
+    const platform = navigator.platform;
+    const language = navigator.language;
+    const memory = navigator.deviceMemory || "غير معروف";
+    const cores = navigator.hardwareConcurrency || "غير معروف";
+    const connection = navigator.connection || {};
+    const doNotTrack = navigator.doNotTrack;
+    const referrer = document.referrer || "زيارة مباشرة أو من تطبيق";
 
-    if (/Android/i.test(ua)) {
-      if (/Samsung|SM-|Galaxy/i.test(ua)) deviceInfo = "جهاز سامسونج (Android)";
-      else if (/OPPO|CPH/i.test(ua)) deviceInfo = "جهاز OPPO (Android)";
-      else deviceInfo = "جهاز Android عام";
-    } else if (/iPhone|iPad|iPod/i.test(ua)) {
-      deviceInfo = "جهاز iPhone / iPad (iOS)";
-    } else if (/Windows NT/i.test(ua)) {
-      deviceInfo = "جهاز كمبيوتر يعمل بنظام Windows";
-    } else if (/Macintosh/i.test(ua)) {
-      deviceInfo = "جهاز كمبيوتر Mac";
-    } else {
-      deviceInfo = "جهاز غير معروف";
-    }
+    // نوع الجهاز ونظام التشغيل
+    let os = "غير معروف";
+    if (/Android/i.test(ua)) os = "Android";
+    else if (/iPhone|iPad|iPod/i.test(ua)) os = "iOS";
+    else if (/Win/i.test(platform)) os = "Windows";
+    else if (/Mac/i.test(platform)) os = "MacOS";
+    else if (/Linux/i.test(platform)) os = "Linux";
 
-    document.getElementById("device").textContent = deviceInfo;
+    let deviceType = "غير معروف";
+    if (/Mobi/i.test(ua)) deviceType = "هاتف محمول";
+    else if (/Tablet|iPad/i.test(ua)) deviceType = "جهاز لوحي";
+    else deviceType = "كمبيوتر مكتبي";
 
-    // 2. المتصفح واللغة
-    const browserLang = navigator.language || navigator.userLanguage;
-    let browserName = "غير معروف";
-    if (ua.indexOf("Chrome") > -1) browserName = "Google Chrome";
-    else if (ua.indexOf("Firefox") > -1) browserName = "Mozilla Firefox";
-    else if (ua.indexOf("Safari") > -1 && ua.indexOf("Chrome") === -1) browserName = "Safari";
-    else if (ua.indexOf("Edge") > -1) browserName = "Microsoft Edge";
-    else if (ua.indexOf("Trident") > -1) browserName = "Internet Explorer";
+    // المتصفح
+    let browser = "غير معروف";
+    if (ua.indexOf("Chrome") > -1 && ua.indexOf("Edge") === -1) browser = "Google Chrome";
+    else if (ua.indexOf("Firefox") > -1) browser = "Mozilla Firefox";
+    else if (ua.indexOf("Safari") > -1 && ua.indexOf("Chrome") === -1) browser = "Safari";
+    else if (ua.indexOf("Edge") > -1) browser = "Microsoft Edge";
 
-    document.getElementById("browser").textContent = `المتصفح: ${browserName}\nلغة المتصفح: ${browserLang}`;
+    // عرض المعلومات
+    document.getElementById("deviceInfo").textContent =
+      `الجهاز: ${deviceType}\nنظام التشغيل: ${os}`;
 
-    // 3. دقة الشاشة
-    const width = window.screen.width;
-    const height = window.screen.height;
-    const availWidth = window.screen.availWidth;
-    const availHeight = window.screen.availHeight;
+    document.getElementById("browserInfo").textContent =
+      `المتصفح: ${browser}\nاللغة: ${language}`;
 
-    document.getElementById("screen").textContent = 
-      `دقة الشاشة: ${width} × ${height} بكسل\n` + 
-      `الدقة المتاحة (بدون شريط المهام): ${availWidth} × ${availHeight} بكسل`;
+    document.getElementById("screenInfo").textContent =
+      `دقة الشاشة: ${screen.width} × ${screen.height} بكسل`;
 
-    // 4. مصدر الدخول (referrer)
-    let ref = document.referrer;
-    if (!ref) ref = "دخول مباشر أو من مصدر مخفي";
-    document.getElementById("referrer").textContent = ref;
+    document.getElementById("hardwareInfo").textContent =
+      `الرام (تقريبي): ${memory} جيجا\nعدد الأنوية: ${cores}`;
+
+    document.getElementById("connectionInfo").textContent =
+      `نوع الاتصال: ${connection.effectiveType || "غير معروف"}\nسرعة التبديل: ${connection.downlink || "غير معروف"} ميجابت`;
+
+    document.getElementById("privacyInfo").textContent =
+      `وضع "عدم التتبع": ${doNotTrack == "1" ? "مفعّل" : "غير مفعّل"}`;
+
+    document.getElementById("referrerInfo").textContent = referrer;
   </script>
 </body>
 </html>
