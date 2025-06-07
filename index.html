@@ -2,15 +2,16 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>تحديد الموقع</title>
+  <title>تحديد الموقع ونوع الجهاز</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       padding: 30px;
       background-color: #f0f0f0;
+      direction: rtl;
     }
-    #location {
+    #location, #device {
       margin-top: 20px;
       font-size: 18px;
       color: #333;
@@ -19,21 +20,26 @@
       border-radius: 10px;
       display: inline-block;
       max-width: 90%;
+      white-space: pre-line;
     }
     button {
       padding: 10px 20px;
       font-size: 16px;
       cursor: pointer;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
 
-  <h1>تحديد موقعك بدقة</h1>
+  <h1>تحديد موقعك ونوع جهازك</h1>
   <button onclick="getLocation()">حدد موقعي</button>
   <div id="location">اضغط على الزر لتحديد موقعك</div>
 
+  <div id="device"></div>
+
   <script>
+    // دالة تحديد الموقع
     function getLocation() {
       const locationDiv = document.getElementById("location");
       if (navigator.geolocation) {
@@ -41,7 +47,6 @@
           const lat = position.coords.latitude;
           const lon = position.coords.longitude;
 
-          // استخدام Nominatim API للحصول على العنوان
           try {
             const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=ar`);
             const data = await response.json();
@@ -52,7 +57,7 @@
             if (address.suburb) result += `الحي: ${address.suburb}\n`;
             if (address.city || address.town || address.village)
               result += `المدينة: ${address.city || address.town || address.village}\n`;
-            if (address.state) result += `المحافظة/الولاية: ${address.state}\n`;
+            if (address.state) result += `المحافظة: ${address.state}\n`;
             if (address.country) result += `الدولة: ${address.country}\n`;
 
             locationDiv.textContent = result;
@@ -66,6 +71,28 @@
       } else {
         locationDiv.textContent = "المتصفح لا يدعم تحديد الموقع.";
       }
+
+      detectDevice(); // استدعاء دالة نوع الجهاز أيضًا
+    }
+
+    // دالة لتحديد نوع الجهاز
+    function detectDevice() {
+      const ua = navigator.userAgent;
+      let type = "نوع الجهاز غير معروف";
+
+      if (ua.includes("OPPO") || ua.includes("CPH")) {
+        type = "جهازك من نوع: OPPO";
+      } else if (ua.includes("Samsung") || ua.includes("SM-")) {
+        type = "جهازك من نوع: Samsung";
+      } else if (ua.includes("Xiaomi") || ua.includes("MI") || ua.includes("Redmi")) {
+        type = "جهازك من نوع: Xiaomi";
+      } else if (ua.includes("iPhone") || ua.includes("iPad")) {
+        type = "جهازك من نوع: Apple";
+      } else if (ua.includes("Huawei")) {
+        type = "جهازك من نوع: Huawei";
+      }
+
+      document.getElementById("device").textContent = "📱 " + type;
     }
   </script>
 
